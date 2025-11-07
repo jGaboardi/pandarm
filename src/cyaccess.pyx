@@ -5,7 +5,7 @@ from libcpp cimport bool
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.pair cimport pair
-from libc.stdint cimport int32_t, int64_t
+from libc.stdint cimport int32_t, uint64_t
 
 import numpy as np
 cimport numpy as np
