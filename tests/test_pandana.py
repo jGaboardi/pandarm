@@ -358,8 +358,6 @@ def test_pois_pandana3(second_sample_osm):
     np.random.seed(0)
     x, y = random_x_y(second_sample_osm, ssize)
 
-    net2.init_pois(num_categories=1, max_dist=2000, max_pois=10)
-
     # make sure POI searches work on second graph
     net2.set_pois(category="restaurants", x_col=x, y_col=y)
 
@@ -372,8 +370,6 @@ def test_pois_pandana3_pos_args(second_sample_osm):
     ssize = 50
     np.random.seed(0)
     x, y = random_x_y(second_sample_osm, ssize)
-
-    net2.init_pois(1, 2000, 10)
 
     # make sure poi searches work on second graph
     net2.set_pois("restaurants", x, y)
