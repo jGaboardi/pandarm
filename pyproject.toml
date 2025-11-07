@@ -15,9 +15,9 @@ dependencies = [
 ]
 classifiers = [
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: GNU Affero General Public License v3",
+        "AGPL-3.0-only",
 ]
-license = { text = "AGPL" }
+license-files = ["LICENSE"]
 requires-python = ">=3.10"
 
 [tool.setuptools.packages.find]

@@ -5,6 +5,7 @@ from libcpp cimport bool
 from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp.pair cimport pair
+from libc.stdint cimport int32_t, int64_t
 
 import numpy as np
 cimport numpy as np
@@ -17,20 +18,20 @@ np.import_array()
 
 cdef extern from "accessibility.h" namespace "MTC::accessibility":
     cdef cppclass Accessibility:
-        Accessibility(int, vector[vector[long]], vector[vector[double]], bool) except +
+        Accessibility(int32_t, vector[vector[long]], vector[vector[double]], bool) except +
         vector[string] aggregations
         vector[string] decays
-        void initializeCategory(double, int, string, vector[long])
-        pair[vector[vector[double]], vector[vector[int]]] findAllNearestPOIs(
-            float, int, string, int)
+        void initializeCategory(double, int32_t, string, vector[long])
+        pair[vector[vector[double]], vector[vector[int32_t]]] findAllNearestPOIs(
+            float, int32_t, string, int32_t)
         void initializeAccVar(string, vector[long], vector[double])
         vector[double] getAllAggregateAccessibilityVariables(
-            float, string, string, string, int)
-        vector[int] Route(int, int, int)
-        vector[vector[int]] Routes(vector[long], vector[long], int)
-        double Distance(int, int, int)
-        vector[double] Distances(vector[long], vector[long], int)
-        vector[vector[pair[long, float]]] Range(vector[long], float, int, vector[long])
+            float, string, string, string, int32_t)
+        vector[int32_t] Route(int32_t, int32_t, int32_t)
+        vector[vector[int32_t]] Routes(vector[long], vector[long], int32_t)
+        double Distance(int32_t, int32_t, int32_t)
+        vector[double] Distances(vector[long], vector[long], int32_t)
+        vector[vector[pair[long, float]]] Range(vector[long], float, int32_t, vector[long])
         void precomputeRangeQueries(double)
 
 
@@ -51,8 +52,8 @@ cdef np.ndarray[double, ndim = 2] convert_2D_vector_to_array_dbl(
 
 
 cdef np.ndarray[int, ndim = 2] convert_2D_vector_to_array_int(
-        vector[vector[int]] vec):
-    cdef np.ndarray arr = np.empty_like(vec, dtype="int")
+        vector[vector[int32_t]] vec):
+    cdef np.ndarray arr = np.empty_like(vec, dtype=np.int64)
     for i in range(arr.shape[0]):
         for j in range(arr.shape[1]):
             arr[i][j] = vec[i][j]
@@ -106,9 +107,9 @@ cdef class cyaccess:
     def find_all_nearest_pois(
         self,
         double radius,
-        int num_of_pois,
+        int32_t num_of_pois,
         string category,
-        int impno=0
+        int32_t impno=0
     ):
         """
         radius - search radius
@@ -148,7 +149,7 @@ cdef class cyaccess:
         category,
         aggtyp,
         decay,
-        int impno=0,
+        int32_t impno=0,
     ):
         """
         radius - search radius
@@ -162,7 +163,7 @@ cdef class cyaccess:
 
         return convert_vector_to_array_dbl(ret)
 
-    def shortest_path(self, int srcnode, int destnode, int impno=0):
+    def shortest_path(self, int32_t srcnode, int32_t destnode, int32_t impno=0):
         """
         srcnode - node id origin
         destnode - node id destination
@@ -171,7 +172,7 @@ cdef class cyaccess:
         return self.access.Route(srcnode, destnode, impno)
 
     def shortest_paths(self, np.ndarray[long] srcnodes, 
-            np.ndarray[long] destnodes, int impno=0):
+            np.ndarray[long] destnodes, int32_t impno=0):
         """
         srcnodes - node ids of origins
         destnodes - node ids of destinations
@@ -179,7 +180,7 @@ cdef class cyaccess:
         """
         return self.access.Routes(srcnodes, destnodes, impno)
 
-    def shortest_path_distance(self, int srcnode, int destnode, int impno=0):
+    def shortest_path_distance(self, int32_t srcnode, int32_t destnode, int32_t impno=0):
         """
         srcnode - node id origin
         destnode - node id destination
@@ -188,7 +189,7 @@ cdef class cyaccess:
         return self.access.Distance(srcnode, destnode, impno)
 
     def shortest_path_distances(self, np.ndarray[long] srcnodes, 
-            np.ndarray[long] destnodes, int impno=0):
+            np.ndarray[long] destnodes, int32_t impno=0):
         """
         srcnodes - node ids of origins
         destnodes - node ids of destinations
@@ -199,7 +200,7 @@ cdef class cyaccess:
     def precompute_range(self, double radius):
         self.access.precomputeRangeQueries(radius)
 
-    def nodes_in_range(self, vector[long] srcnodes, float radius, int impno, 
+    def nodes_in_range(self, vector[long] srcnodes, float radius, int32_t impno, 
             np.ndarray[long] ext_ids):
         """
         srcnodes - node ids of origins

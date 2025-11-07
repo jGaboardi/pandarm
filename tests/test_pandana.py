@@ -130,7 +130,6 @@ def test_agg_variables_accuracy(sample_osm):
 
 
 def test_non_integer_nodeids(request):
-
     store = pd.HDFStore(os.path.join(os.path.dirname(__file__), "osm_sample.h5"), "r")
     nodes, edges = store.nodes, store.edges
 
@@ -258,7 +257,6 @@ def test_plot(sample_osm):
 
 
 def test_shortest_path(sample_osm):
-
     for i in range(10):
         ids = random_connected_nodes(sample_osm, 2)
         path = sample_osm.shortest_path(ids[0], ids[1])
@@ -268,7 +266,6 @@ def test_shortest_path(sample_osm):
 
 
 def test_shortest_paths(sample_osm):
-
     nodes = random_connected_nodes(sample_osm, 100)
     vec_paths = sample_osm.shortest_paths(nodes[0:50], nodes[50:100])
 
@@ -285,7 +282,6 @@ def test_shortest_paths(sample_osm):
 
 
 def test_shortest_path_length(sample_osm):
-
     for i in range(10):
         ids = random_connected_nodes(sample_osm, 2)
         len = sample_osm.shortest_path_length(ids[0], ids[1])
@@ -293,7 +289,6 @@ def test_shortest_path_length(sample_osm):
 
 
 def test_shortest_path_lengths(sample_osm):
-
     nodes = random_connected_nodes(sample_osm, 100)
     lens = sample_osm.shortest_path_lengths(nodes[0:50], nodes[50:100])
     for len in lens:
@@ -374,7 +369,7 @@ def test_pois_pandana3_pos_args(second_sample_osm):
     # make sure poi searches work on second graph
     net2.set_pois("restaurants", maxdist=2000, maxitems=10, x_col=x, y_col=y)
 
-    net2.nearest_pois(2000, "restaurants",  num_pois=10)
+    net2.nearest_pois(2000, "restaurants", num_pois=10)
 
 
 # test items are sorted
@@ -405,9 +400,7 @@ def test_repeat_pois(sample_osm):
             coords_dict.append({"x": x2, "y": y2, "var": 1})
         df = pd.DataFrame(coords_dict)
         sample_osm.set_pois("restaurants", 2000, 10, df["x"], df["y"])
-        res = sample_osm.nearest_pois(
-            2000, "restaurants", num_pois=5, include_poi_ids=True
-        )
+        res = sample_osm.nearest_pois(2000, "restaurants", num_pois=5, include_poi_ids=True)
         return res
 
     # these are the min-max values of the network
@@ -421,12 +414,8 @@ def test_repeat_pois(sample_osm):
     assert test1.equals(test3)
 
     test4 = get_nearest_nodes(-122.31, 47.60, -122.32, 47.61, n=3)
-    assert_allclose(
-        test4.loc[53114882], [7, 13, 13, 2000, 2000, 2, 0, 1, np.nan, np.nan]
-    )
-    assert_allclose(
-        test4.loc[53114880], [6, 14, 14, 2000, 2000, 2, 0, 1, np.nan, np.nan]
-    )
+    assert_allclose(test4.loc[53114882], [7, 13, 13, 2000, 2000, 2, 0, 1, np.nan, np.nan])
+    assert_allclose(test4.loc[53114880], [6, 14, 14, 2000, 2000, 2, 0, 1, np.nan, np.nan])
     assert_allclose(
         test4.loc[53227769],
         [2000, 2000, 2000, 2000, 2000, np.nan, np.nan, np.nan, np.nan, np.nan],
@@ -450,16 +439,8 @@ def test_nodes_in_range(sample_osm):
     assert test11.weight.max() == 11
 
     focus_id = snaps[0]
-    all_distances = net.shortest_path_lengths(
-        [focus_id] * len(net.node_ids), net.node_ids
-    )
+    all_distances = net.shortest_path_lengths([focus_id] * len(net.node_ids), net.node_ids)
     all_distances = np.asarray(all_distances)
-    assert (all_distances <= 1).sum() == len(
-        test1.query("source == {}".format(focus_id))
-    )
-    assert (all_distances <= 5).sum() == len(
-        test5.query("source == {}".format(focus_id))
-    )
-    assert (all_distances <= 11).sum() == len(
-        test11.query("source == {}".format(focus_id))
-    )
+    assert (all_distances <= 1).sum() == len(test1.query("source == {}".format(focus_id)))
+    assert (all_distances <= 5).sum() == len(test5.query("source == {}".format(focus_id)))
+    assert (all_distances <= 11).sum() == len(test11.query("source == {}".format(focus_id)))

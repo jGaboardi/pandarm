@@ -2,7 +2,7 @@ import os
 import sys
 
 import numpy as np  # for c++ headers
-from setuptools import Extension, setup
+from setuptools import Extension, setup, find_packages
 
 ###############################################
 # Building the C++ extension
@@ -83,6 +83,9 @@ cyaccess = Extension(
     extra_link_args=extra_link_args,
 )
 
+packages = find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"])
+
 setup(
+    packages=packages,
     ext_modules=[cyaccess],
 )
