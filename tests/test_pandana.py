@@ -312,9 +312,6 @@ def test_pois(sample_osm):
     with pytest.raises(AssertionError):
         net.nearest_pois(2000, "restaurants", num_pois=10)
 
-    with pytest.raises(AssertionError):
-        net.nearest_pois(2000, "restaurants", num_pois=10)
-
     # boundary condition
     net.set_pois("restaurants", 2000, 10, x, y)
 

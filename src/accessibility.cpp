@@ -294,7 +294,7 @@ void Accessibility::initializeAccVar(
         int node_id = node_idx[i];
         double val = values[i];
 
-        assert(node_id << av.size());
+        assert(node_id < av.size());
         av[node_id].push_back(val);
     }
     accessibilityVars[category] = av;
