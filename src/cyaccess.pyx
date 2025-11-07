@@ -200,7 +200,7 @@ cdef class cyaccess:
     def precompute_range(self, double radius):
         self.access.precomputeRangeQueries(radius)
 
-    def nodes_in_range(self, vector[long] srcnodes, float radius, int32_t impno, 
+    def nodes_in_range(self, vector[long] srcnodes, float radius, int64_t impno, 
             np.ndarray[int64_t] ext_ids):
         """
         srcnodes - node ids of origins
