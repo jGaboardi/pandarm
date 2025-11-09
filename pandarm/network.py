@@ -2,10 +2,12 @@ import warnings
 
 import numpy as np
 import pandas as pd
+import geopandas as gpd
 from sklearn.neighbors import KDTree
 
 from .cyaccess import cyaccess
 from .loaders import pandash5 as ph5
+from .loaders.osm import get_network_from_gdf as _net_from_gdf, project_network as _project_network
 
 
 class Network:
@@ -79,6 +81,83 @@ class Network:
         self._twoway = twoway
 
         self.kdtree = KDTree(nodes_df.values)
+
+    @classmethod
+    def from_gdf(
+
+        cls, gdf, network_type="walk", twoway=False, add_travel_times=False, default_speeds=None
+    ):
+        """Create a pandana.Network object from a geodataframe (via OSMnx graph).
+
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            dataframe covering the study area of interest; Note the first step is to take
+            the unary union of this dataframe, which is expensive, so large dataframes may
+            be time-consuming. The network will inherit the CRS from this dataframe
+        network_type : str, {"all_private", "all", "bike", "drive", "drive_service", "walk"}
+            the type of network to collect from OSM (passed to `osmnx.graph_from_polygon`)
+            by default "walk"
+        twoway : bool, optional
+            Whether to treat the pandana.Network as directed or undirected. For a directed network,
+            use `twoway=False` (which is the default). For an undirected network (e.g. a
+            walk network) where travel can flow in both directions, the network is more
+            efficient when twoway=True but forces the impedance to be equal in both
+            directions. This has implications for auto or multimodal
+            networks where impedance is generally different depending on travel direction.
+        add_travel_times : bool, default=False
+            whether to use posted travel times from OSM as the impedance measure (rather
+            than network-distance). Speeds are based on max posted drive speeds, see
+            <https://osmnx.readthedocs.io/en/stable/internals-reference.html#osmnx-speed-module>
+            for more information.
+        default_speeds : dict, optional
+            default speeds passed assumed when no data available on the OSM edge. Defaults
+            to  {"residential": 35, "secondary": 50, "tertiary": 60}. Only considered if
+            add_travel_times is True
+
+        Returns
+        -------
+        pandana.Network
+            a pandana.Network object with node coordinates stored in the same system as the
+            input geodataframe. If add_travel_times is True, the network impedance
+            is travel time measured in seconds (assuming automobile travel speeds); else
+            the impedance is travel distance measured in meters
+
+        Raises
+        ------
+        ImportError
+            requires `osmnx`, raises if module not available
+        """
+        return _net_from_gdf(cls, gdf, network_type, twoway, add_travel_times, default_speeds)
+
+    def to_crs(self, output_crs, input_crs=None):
+        """Reproject a pandana.Network object into another coordinate system.
+
+        Note this function does affect the weight/impedance of any network edges, but
+        reprojects the x and y coordinates of the nodes (e.g. for precise snapping)
+        between nodes and projected origin/destination data
+
+        Parameters
+        ----------
+        network : pandana.Network
+            an instantiated pandana Network object
+        input_crs : int, optional
+            the coordinate system used in the Network.node_df dataframe. Typically
+            these data are collected in Lon/Lat, so the default 4326. If None, but 
+            there is a geometry column present in the Network, input CRS is inferred
+        output_crs : int, str, or pyproj.crs.CRS, required
+            EPSG code or pyproj.crs.CRS object of the output coordinate system
+
+        Returns
+        -------
+        pandana.Network
+            an initialized pandana.Network with 'x' and y' values represented
+            by coordinates in the specified CRS
+        """
+        if input_crs is None and isinstance(self.nodes_df, gpd.GeoDataFrame):
+            input_crs = self.nodes_df.crs
+        return _project_network(self, output_crs, input_crs)
+
 
     @classmethod
     def from_hdf5(cls, filename):
