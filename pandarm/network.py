@@ -57,6 +57,7 @@ class Network:
         self.variable_names = set()
         self.poi_category_names = []
         self.poi_category_indexes = {}
+        self.max_pois = {}
 
         # this maps IDs to indexes which are used internally
         # this is a constant source of headaches, but all node identifiers
@@ -766,7 +767,7 @@ class Network:
         if category not in self.poi_category_names:
             self.poi_category_names.append(category)
 
-        self.max_pois = maxitems
+        self.max_pois[category] = maxitems
 
         node_ids = self.get_node_ids(x_col, y_col, mapping_distance=mapping_distance)
 
@@ -837,7 +838,12 @@ class Network:
             max_distance = distance
 
         if category not in self.poi_category_names:
-            assert 0, "Need to call set_pois for this category"
+            raise ValueError("Need to call set_pois for this category")
+        if num_pois > self.max_pois[category]:
+            raise ValueError(
+                f"The maximum number of POIs for {category} is {self.max_pois[category]}." +
+                "If you need more, then increase the maxitems in another call to `set_pois`"
+            )
 
         imp_num = self._imp_name_to_num(imp_name)
 
