@@ -439,7 +439,7 @@ class Network:
         self.variable_names.add(name)
 
         self.net.initialize_access_var(
-            name.encode("utf-8"),
+            name,
             df.node_idx.values.astype(np.int64),
             df[name].values.astype("double"),
         )
@@ -591,9 +591,9 @@ class Network:
 
         res = self.net.get_all_aggregate_accessibility_variables(
             distance,
-            name.encode("utf-8"),
-            type.encode("utf-8"),
-            decay.encode("utf-8"),
+            name,
+            type,
+            decay,
             imp_num,
         )
 
@@ -775,7 +775,7 @@ class Network:
         node_idx = self._node_indexes(node_ids)
 
         self.net.initialize_category(
-            maxdist, maxitems, category.encode(encoding="utf-8"), node_idx.values
+            maxdist, maxitems, category, node_idx.values
         )
 
     def nearest_pois(
@@ -842,7 +842,7 @@ class Network:
         imp_num = self._imp_name_to_num(imp_name)
 
         dists, poi_ids = self.net.find_all_nearest_pois(
-            distance, num_pois, category.encode("utf-8"), imp_num
+            distance, num_pois, category, imp_num
         )
         dists[dists == -1] = max_distance
 
