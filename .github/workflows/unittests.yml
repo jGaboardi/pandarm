@@ -75,13 +75,14 @@
            --cov=pandarm \
            --cov-append \
            --cov-report term-missing \
-           --cov-report xml
+           --cov-report xml \
+           --cov-context=test
 
        - name: codecov
          uses: codecov/codecov-action@v5
          with:
            token: ${{ secrets.CODECOV_TOKEN }}
-           file: ./coverage.xml
+           files: ./coverage.xml
            name: pandarm-codecov
 
        - name: Generate and publish the report
