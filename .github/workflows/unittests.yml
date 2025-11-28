@@ -31,7 +31,7 @@
          ]
          include:
            - environment-file: ci/312.yml
-             os: macos-13 # Intel
+             os: macos-15-intel # Intel
            - environment-file: ci/312.yml
              os: macos-latest # Apple Silicon
            - environment-file: ci/312.yml
@@ -70,19 +70,19 @@
            pytest tests \
            -v \
            -r a \
-           -n auto \
            --color yes \
-           --cov pandarm \
+           --cov=pandarm \
            --cov-append \
            --cov-report term-missing \
-           --cov-report xml
+           --cov-report xml \
+           --cov-context=test
 
        - name: codecov
-         uses: codecov/codecov-action@v3
+         uses: codecov/codecov-action@v5
          with:
            token: ${{ secrets.CODECOV_TOKEN }}
-           file: ./coverage.xml
-           name: panradm-codecov
+           files: ./coverage.xml
+           name: pandarm-codecov
 
        - name: Generate and publish the report
          if: |

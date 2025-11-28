@@ -63,3 +63,15 @@ tests = [
 [tool.ruff]
 ignore = ["E226","E402"]
 line-length = 100
+
+[tool.coverage.run]
+source = ["./pandarm"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "if self.debug:",
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "except ModuleNotFoundError:",
+    "except ImportError",
+]

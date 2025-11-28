@@ -57,6 +57,7 @@ class Network:
         self.variable_names = set()
         self.poi_category_names = []
         self.poi_category_indexes = {}
+        self.max_pois = {}
 
         # this maps IDs to indexes which are used internally
         # this is a constant source of headaches, but all node identifiers
@@ -439,7 +440,7 @@ class Network:
         self.variable_names.add(name)
 
         self.net.initialize_access_var(
-            name.encode("utf-8"),
+            name,
             df.node_idx.values.astype(np.int64),
             df[name].values.astype("double"),
         )
@@ -591,9 +592,9 @@ class Network:
 
         res = self.net.get_all_aggregate_accessibility_variables(
             distance,
-            name.encode("utf-8"),
-            type.encode("utf-8"),
-            decay.encode("utf-8"),
+            name,
+            type,
+            decay,
             imp_num,
         )
 
@@ -766,7 +767,7 @@ class Network:
         if category not in self.poi_category_names:
             self.poi_category_names.append(category)
 
-        self.max_pois = maxitems
+        self.max_pois[category] = maxitems
 
         node_ids = self.get_node_ids(x_col, y_col, mapping_distance=mapping_distance)
 
@@ -775,7 +776,7 @@ class Network:
         node_idx = self._node_indexes(node_ids)
 
         self.net.initialize_category(
-            maxdist, maxitems, category.encode(encoding="utf-8"), node_idx.values
+            maxdist, maxitems, category, node_idx.values
         )
 
     def nearest_pois(
@@ -837,12 +838,17 @@ class Network:
             max_distance = distance
 
         if category not in self.poi_category_names:
-            assert 0, "Need to call set_pois for this category"
+            raise ValueError("Need to call set_pois for this category")
+        if num_pois > self.max_pois[category]:
+            raise ValueError(
+                f"The maximum number of POIs for {category} is {self.max_pois[category]}." +
+                "If you need more, then increase the maxitems in another call to `set_pois`"
+            )
 
         imp_num = self._imp_name_to_num(imp_name)
 
         dists, poi_ids = self.net.find_all_nearest_pois(
-            distance, num_pois, category.encode("utf-8"), imp_num
+            distance, num_pois, category, imp_num
         )
         dists[dists == -1] = max_distance
 
