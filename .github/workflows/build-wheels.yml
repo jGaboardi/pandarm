@@ -5,6 +5,9 @@ on:
     tags:
       - "v*"       # v1.2.3 → PyPI, v1.2.3a1/b1/rc1 → TestPyPI
   workflow_dispatch:
+  pull_request:
+    branches:
+     - '*'
 
 jobs:
   build_wheels:
@@ -49,6 +52,8 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macosx_deployment_target }}
 
       # ── Linux ──────────────────────────────────────────────────────────────
+      CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+      CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
       # Install OpenMP inside the manylinux container before building.
       # The shared lib ends up bundled into the wheel by auditwheel automatically.
       CIBW_BEFORE_BUILD_LINUX: >
