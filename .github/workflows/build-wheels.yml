@@ -26,7 +26,7 @@ jobs:
             arch: aarch64
 
           # macOS Intel (x86_64)
-          - os: macos-13
+          - os: macos-26-intel
             arch: x86_64
             macosx_deployment_target: "13.0"
 
@@ -42,7 +42,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      CIBW_BUILD: "cp311-* cp312-* cp313-* cp314-*"
+      CIBW_BUILD: "cp311-* cp312-* cp313-* cp314-* cp315-*"
       CIBW_ARCHS: ${{ matrix.arch }}
       CIBW_BUILD_VERBOSITY: 1
       # Match Homebrew libomp's minimum OS target so delocate can bundle it.
@@ -80,22 +80,24 @@ jobs:
         delvewheel repair -w {dest_dir} {wheel}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       # Enable QEMU for Linux aarch64 cross-compilation.
       - name: Set up QEMU (Linux aarch64 only)
         if: matrix.os == 'ubuntu-latest' && matrix.arch == 'aarch64'
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         with:
           platforms: arm64
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.21
+        uses: pypa/cibuildwheel@v4.3.4
         with:
           output-dir: wheelhouse
 
       - name: Upload wheel artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: wheels-${{ matrix.os }}-${{ matrix.arch }}
           path: wheelhouse/*.whl
@@ -105,10 +107,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.12"
 
@@ -135,7 +139,7 @@ jobs:
 
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
@@ -164,7 +168,7 @@ jobs:
       # GitHub Release for any v* tag; marked pre-release when applicable
       - name: Create GitHub Release
         if: startsWith(github.ref_name, 'v')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           prerelease: ${{ contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc') }}
           files: dist/*
