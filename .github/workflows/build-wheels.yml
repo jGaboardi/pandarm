@@ -3,15 +3,15 @@ name: Build and publish to PyPI
 on:
   push:
     tags:
-      - "v*"       # v1.2.3 → PyPI, v1.2.3a1/b1/rc1 → TestPyPI
+      - "v*" # v1.2.3 → PyPI, v1.2.3a1/b1/rc1 → TestPyPI
   workflow_dispatch:
 
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
     permissions:
-      id-token: write   # MANDATORY for trusted publishing to PyPI
-      contents: write   # MANDATORY for the GitHub release action
+      id-token: write # MANDATORY for trusted publishing to PyPI
+      contents: write # MANDATORY for the GitHub release action
 
     strategy:
       fail-fast: false
@@ -26,12 +26,12 @@ jobs:
             arch: aarch64
 
           # macOS Intel (x86_64)
-          - os: macos-26-intel
+          - os: macos-15-intel
             arch: x86_64
-            macosx_deployment_target: "13.0"
+            macosx_deployment_target: "15.0"
 
           # macOS Apple Silicon (arm64)
-          - os: macos-latest
+          - os: macos-15
             arch: arm64
             macosx_deployment_target: "15.0"
 
@@ -62,13 +62,15 @@ jobs:
 
       # ── macOS ──────────────────────────────────────────────────────────────
       # 1. Install libomp via Homebrew so the compiler can find it.
-      # 2. Point the compiler and linker at it explicitly so delocate can see
-      #    the dylib at a known Homebrew prefix and bundle it into the wheel.
+      # 2. Point CMake's FindOpenMP at it via OpenMP_ROOT (Apple clang has no
+      #    built-in OpenMP and CMake ignores CPPFLAGS/LDFLAGS), and the linker
+      #    at the same prefix so delocate can bundle the dylib into the wheel.
       CIBW_BEFORE_BUILD_MACOS: >
         brew install libomp
       CIBW_ENVIRONMENT_MACOS: >
         CC=clang
         CXX=clang++
+        OpenMP_ROOT="$(brew --prefix libomp)"
         LDFLAGS="-L$(brew --prefix libomp)/lib"
         CPPFLAGS="-I$(brew --prefix libomp)/include"
         DYLD_LIBRARY_PATH="$(brew --prefix libomp)/lib"
