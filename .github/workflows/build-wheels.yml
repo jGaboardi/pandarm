@@ -28,12 +28,12 @@ jobs:
             arch: aarch64
 
           # macOS Intel (x86_64)
-          - os: macos-26-intel
+          - os: macos-15-intel
             arch: x86_64
-            macosx_deployment_target: "13.0"
+            macosx_deployment_target: "15.0"
 
           # macOS Apple Silicon (arm64)
-          - os: macos-latest
+          - os: macos-15
             arch: arm64
             macosx_deployment_target: "15.0"
 
