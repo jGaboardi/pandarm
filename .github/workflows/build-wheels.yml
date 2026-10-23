@@ -42,6 +42,10 @@ jobs:
           - os: windows-latest
             arch: AMD64
 
+          # Windows ARM64 — native arm64 runner
+          - os: windows-11-arm
+            arch: ARM64
+
     runs-on: ${{ matrix.os }}
 
     env:
